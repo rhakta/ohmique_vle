@@ -27,13 +27,13 @@ import textwrap
 import matplotlib.pyplot as plt
 matplotlib.use("Agg")
 
-__author__ = "Your Name"
+__author__ = "Vincent Le"
 __copyright__ = "Universite Paris Diderot"
-__credits__ = ["Your Name"]
+__credits__ = ["Vincent LE"]
 __license__ = "GPL"
 __version__ = "1.0.0"
-__maintainer__ = "Your Name"
-__email__ = "your@email.fr"
+__maintainer__ = "Vincent LE"
+__email__ = "le75.vincent@gmail.com"
 __status__ = "Developpement"
 
 def isfile(path): # pragma: no cover
@@ -81,6 +81,12 @@ def read_fastq(fastq_file):
     :param fastq_file: (str) Path to the fastq file.
     :return: A generator object that iterate the read sequences. 
     """
+    with open (fastq_file) as f:
+        file_read=[]
+        for line in f:
+            file_read.append(line.strip())
+        for read in file_read[1::4]:
+            yield(read)
     pass
 
 
@@ -88,8 +94,13 @@ def cut_kmer(read, kmer_size):
     """Cut read into kmers of size kmer_size.
     
     :param read: (str) Sequence of a read.
-    :return: A generator object that iterate the kmers of of size kmer_size.
+    :return: A generator object that iterate the kmers of size kmer_size.
     """
+    for i in range(len(read)-kmer_size+1):
+        k_mer=""
+        for j in range(kmer_size):
+            k_mer+=read[i+j]
+        yield(k_mer)
     pass
 
 
@@ -99,7 +110,14 @@ def build_kmer_dict(fastq_file, kmer_size):
     :param fastq_file: (str) Path to the fastq file.
     :return: A dictionnary object that identify all kmer occurrences.
     """
-    pass
+    dictio=dict()
+    for read in read_fastq(fastq_file):
+        for k_mer in cut_kmer(read,kmer_size):
+            try:
+                dictio[k_mer]+=1
+            except:
+                dictio[k_mer]=1
+    return(dictio)
 
 
 def build_graph(kmer_dict):
@@ -108,7 +126,8 @@ def build_graph(kmer_dict):
     :param kmer_dict: A dictionnary object that identify all kmer occurrences.
     :return: A directed graph (nx) of all kmer substring and weight (occurrence).
     """
-    pass
+    graph=nx.DiGraph(kmer_dict)
+    return graph
 
 
 def remove_paths(graph, path_list, delete_entry_node, delete_sink_node):
