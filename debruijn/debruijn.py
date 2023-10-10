@@ -248,7 +248,23 @@ def solve_entry_tips(graph, starting_nodes):
     :param graph: (nx.DiGraph) A directed graph object
     :return: (nx.DiGraph) A directed graph object
     """
-    pass
+    L_path=[]
+    L_lenght=[]
+    L_weight=[]
+    for node in graph:
+        L_predecessors=list(graph.predecessors(node))
+        if ((len(L_predecessors)>1) and (node not in starting_nodes)):
+            for st_node in starting_nodes:
+                if(nx.has_path(graph,source=st_node,target=node)):
+                    all_paths=nx.all_simple_paths(graph,source=st_node,target=node)
+                    for path in all_paths:
+                        L_path.append(path)
+                        L_lenght.append(len(path))
+                        L_weight.append(path_average_weight(graph, path))
+            break
+    if len(L_path) > 1:
+       graph = solve_entry_tips( select_best_path(graph,L_path,L_lenght,L_weight,delete_entry_node=True,delete_sink_node=False), starting_nodes)
+    return graph
 
 def solve_out_tips(graph, ending_nodes):
     """Remove out tips
@@ -256,7 +272,24 @@ def solve_out_tips(graph, ending_nodes):
     :param graph: (nx.DiGraph) A directed graph object
     :return: (nx.DiGraph) A directed graph object
     """
-    pass
+    L_path=[]
+    L_lenght=[]
+    L_weight=[]
+    for node in graph:
+        L_successors=list(graph.successors(node))
+        if ((len(L_successors)>1) and (node not in ending_nodes)):
+            for end_node in ending_nodes:
+                if(nx.has_path(graph,source=node,target=end_node)):
+                    all_paths=nx.all_simple_paths(graph,source=node,target=end_node)
+                    for path in all_paths:
+                        L_path.append(path)
+                        L_lenght.append(len(path))
+                        L_weight.append(path_average_weight(graph, path))
+            break
+    if len(L_path) > 1:
+       graph = solve_out_tips( select_best_path(graph,L_path,L_lenght,L_weight,delete_entry_node=False,delete_sink_node=True), ending_nodes)
+    return graph
+
 
 def get_starting_nodes(graph):
     """Get nodes without predecessors
