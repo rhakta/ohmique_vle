@@ -145,7 +145,6 @@ def remove_paths(graph, path_list, delete_entry_node, delete_sink_node):
     :return: (nx.DiGraph) A directed graph object
     """
     for path in path_list:
-        print(path)
         graph.remove_nodes_from(path[1:-1])
         if (delete_entry_node):
             graph.remove_node(path[0])
@@ -332,7 +331,6 @@ def get_contigs(graph, starting_nodes, ending_nodes):
                 for k_mer in path:
                     sequ+=k_mer[1]
                 L_contigs.append((sequ,len(path)+1))
-                print(sequ)
     return (L_contigs)
 
 def save_contigs(contigs_list, output_file):
@@ -392,6 +390,17 @@ def main(): # pragma: no cover
     # Plot the graph
     # if args.graphimg_file:
     #     draw_graph(graph, args.graphimg_file)
+
+    #main f°
+    dict_reads = build_kmer_dict(args.fastq_file, args.kmer_size)
+    graph = build_graph(dict_reads)
+    graph = simplify_bubbles(graph)
+    graph = solve_entry_tips(graph, get_starting_nodes(graph))
+    graph = solve_out_tips(graph, get_sink_nodes(graph))
+
+    #contigs
+    L_contigs = get_contigs(graph,get_starting_nodes(graph),get_sink_nodes(graph))
+    save_contigs(L_contigs,args.output_file)
 
 
 if __name__ == '__main__': # pragma: no cover
